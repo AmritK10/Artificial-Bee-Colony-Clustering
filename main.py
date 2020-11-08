@@ -98,6 +98,9 @@ def fitnessFunction(costs):
 
     return fitness
 
+def fitnessVal(cost):
+    return 1/(1+cost)
+
 def rouletteWheelFunction(P):
     p_sorted_asc = sorted(P.items(), key = operator.itemgetter(1))
     p_sorted_desc = dict(reversed(p_sorted_asc))
@@ -135,6 +138,9 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
 
     for it in range(max_iter):
         # Employed bees phase
+
+        F = fitnessFunction(costs) # calculate fitness of each class
+
         for cl in centroids:
             _keys = keys.copy() # copying to maintain the original dict
             index = _keys.index(cl)
@@ -156,18 +162,20 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # Calculate the cost of the dataset with the new centroid
             new_solution_cost = costFunction(dataset, classes, cl, new_solution)
 
+            new_fitness = fitnessVal(new_solution_cost)
+
             # Greedy selection: comparing the new solution to the old one
-            if new_solution_cost <= costs[cl]:
+            if new_fitness > F[cl]:
                 centroids[cl] = new_solution
-                costs[cl] = new_solution_cost
+                F[cl] = new_solution_cost
                 C[cl] = 0
             else: 
                 # Increment the counter for discarted new solutions
                 C[cl] += 1
 
-        F = fitnessFunction(costs) # calculate fitness of each class
         f_sum_arr = [F[key] for key in F]
         f_sum = np.sum(f_sum_arr)
+        
         P = {} # probabilities of each class
         for key in F:
             P[key] = F[key]/f_sum
@@ -196,24 +204,36 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # Calculate the cost of the dataset with the new centroid
             new_solution_cost = costFunction(dataset, classes, selected_key, new_solution)
 
+            new_fitness = fitnessVal(new_solution_cost)
+
             # Greedy selection: comparing the new solution to the old one
-            if new_solution_cost <= costs[selected_key]:
+            if new_fitness > F[selected_key]:
                 centroids[selected_key] = new_solution
-                costs[selected_key] = new_solution_cost
+                F[selected_key] = new_solution_cost
                 C[selected_key] = 0
             else: 
                 # Increment the counter for discarted new solutions
                 C[selected_key] += 1
 
+        max_fails = a_limit
+        c_cl = None
         # Scout bees phase
         for cl_s in centroids:
             if C[cl_s] > a_limit:
-                random_solution = np.random.uniform(0, 1, n_attr)
-                random_solution_cost = costFunction(dataset, classes, cl_s, random_solution)
+                if C[cl_s] > max_fails:
+                    max_fails = C[cl_s]
+                    c_cl = cl_s
 
-                centroids[cl_s] = new_solution
-                costs[cl_s] = random_solution_cost
-                C[cl_s] = 0
+        if c_cl:
+            cl_s = c_cl
+            random_solution = np.random.uniform(0, 1, n_attr)
+            random_solution_cost = costFunction(dataset, classes, cl_s, random_solution)
+
+            new_fitness = fitnessVal(random_solution_cost)
+
+            centroids[cl_s] = new_solution
+            F[cl_s] = new_fitness
+            C[cl_s] = 0
 
         # Update best solution for this iteration
         best_solution = 9999999999
@@ -252,10 +272,10 @@ def getSets(dataset, classes):
 
 databases = [{ 'filename': 'cancer_int.data', 'has_id': True, 'class_position': 'last' }, 
             { 'filename': 'cancer.data', 'has_id': True, 'class_position': 'last' },
-            { 'filename': 'dermatology.data', 'has_id': False, 'class_position': 'last' },
-            { 'filename': 'new-thyroid.data', 'has_id': False, 'class_position': 'first' },
-            { 'filename': 'heart.data', 'has_id': False, 'class_position': 'last' },
-            { 'filename': 'heart_processed.data', 'has_id': False, 'class_position': 'last' }]
+            { 'filename': 'new-thyroid.data', 'has_id': False, 'class_position': 'first' }]
+            # { 'filename': 'dermatology.data', 'has_id': False, 'class_position': 'last' },
+            # { 'filename': 'heart.data', 'has_id': False, 'class_position': 'last' },
+            # { 'filename': 'heart_processed.data', 'has_id': False, 'class_position': 'last' }]
             # { 'filename': 'glass.data', 'has_id': True, 'class_position': 'last' }, 
             # { 'filename': 'balance-scale.data', 'has_id': False, 'class_position': 'first' }]
 
