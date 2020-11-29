@@ -272,12 +272,10 @@ def getSets(dataset, classes):
 
 databases = [{ 'filename': 'cancer_int.data', 'has_id': True, 'class_position': 'last' }, 
             { 'filename': 'cancer.data', 'has_id': True, 'class_position': 'last' },
-            { 'filename': 'new-thyroid.data', 'has_id': False, 'class_position': 'first' }]
-            # { 'filename': 'dermatology.data', 'has_id': False, 'class_position': 'last' },
-            # { 'filename': 'heart.data', 'has_id': False, 'class_position': 'last' },
-            # { 'filename': 'heart_processed.data', 'has_id': False, 'class_position': 'last' }]
-            # { 'filename': 'glass.data', 'has_id': True, 'class_position': 'last' }, 
-            # { 'filename': 'balance-scale.data', 'has_id': False, 'class_position': 'first' }]
+            { 'filename': 'new-thyroid.data', 'has_id': False, 'class_position': 'first' },
+            { 'filename': 'heart_processed.data', 'has_id': False, 'class_position': 'last' },
+            { 'filename': 'haberman.data', 'has_id': False, 'class_position': 'last' },
+            { 'filename': 'lymphography.data', 'has_id': False, 'class_position': 'first' }]
 
 for database in databases:
     d, c = readDatabase(database['filename'], database['has_id'], database['class_position'])
