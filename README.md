@@ -1,8 +1,12 @@
-# artificial_bee_colony
-A python implementation of clustering optimization using the Artificial Bee Colony algorithm.
+# Artificial Bee Colony Clustering 
+A python implementation of Artificial Bee Colony algorithm based clustering technique.
 
 # References
-http://www.sciencedirect.com/science/article/pii/S1568494609002798    
-http://mf.erciyes.edu.tr/abc/index.htm    
-http://www.mathworks.com/matlabcentral/fileexchange/52966-artificial-bee-colony--abc--in-matlab/content/YPEA114%20Artificial%20Bee%20Colony/Artificial%20Bee%20Colony/abc.m    
-http://www.scholarpedia.org/article/Artificial_bee_colony_algorithm    
+## Artificial Bee Colony
+<ul> 
+  <li> <b>Wikipedia</b> : https://en.wikipedia.org/wiki/Artificial_bee_colony_algorithm </li>
+  <li> <b>Youtube</b> video for better understanding: https://www.youtube.com/watch?v=U9ah51wjvgo </li>
+</ul>
+
+## Research Paper 
+The following <b>research paper</b> outlines the Artificial Bee Colony algorithm based clustering technique: http://www.sciencedirect.com/science/article/pii/S1568494609002798 
