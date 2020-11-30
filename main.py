@@ -270,12 +270,14 @@ def getSets(dataset, classes):
 
 
 
-databases = [{ 'filename': 'cancer_int.data', 'has_id': True, 'class_position': 'last' }, 
+databases = [
+            { 'filename': 'cancer_int.data', 'has_id': True, 'class_position': 'last' }, 
             { 'filename': 'cancer.data', 'has_id': True, 'class_position': 'last' },
             { 'filename': 'new-thyroid.data', 'has_id': False, 'class_position': 'first' },
             { 'filename': 'heart_processed.data', 'has_id': False, 'class_position': 'last' },
             { 'filename': 'haberman.data', 'has_id': False, 'class_position': 'last' },
-            { 'filename': 'lymphography.data', 'has_id': False, 'class_position': 'first' }]
+            { 'filename': 'lymphography.data', 'has_id': False, 'class_position': 'first' }
+            ]
 
 for database in databases:
     d, c = readDatabase(database['filename'], database['has_id'], database['class_position'])
@@ -299,7 +301,7 @@ for database in databases:
                 #print("Miscl.: {data}; Correct: {correct}; Classif.: {classif}"
                 #    .format(data = test_set[i], correct = test_set_classes[i], classif = cl))
                 count += 1
-        print("# RESULT -> CEP: {cep}".format(cep = count/len(test_set)))
+        print("# RESULT -> ACC: {cep}".format(cep = 1 - count/len(test_set)))
 
         # Test with the ABC result
         count = 0
@@ -310,5 +312,5 @@ for database in databases:
                 #print("Miscl.: {data}; Correct: {correct}; Classif.: {classif}"
                 #    .format(data = test_set[i], correct = test_set_classes[i], classif = cl))
                 count += 1
-        print("# RESULT -> CEP: {cep}\n".format(cep = count/len(test_set)))
+        print("# RESULT -> ACC: {cep}\n".format(cep = 1 - count/len(test_set)))
         
