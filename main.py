@@ -2,6 +2,8 @@ import numpy as np
 import random
 import operator 
 import os
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
 
 class Centroid():
     def __init__(self, cl, acc):
@@ -156,7 +158,6 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # (centroids[cl] - centroids[k]): numpy array
             # The operation will be element by element given that all the operands
             # are numpy arrays
-            # TODO: ceil and floor of the new solution
             new_solution = centroids[cl] + phi * (centroids[cl] - centroids[k])
 
             # Calculate the cost of the dataset with the new centroid
@@ -167,7 +168,8 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # Greedy selection: comparing the new solution to the old one
             if new_fitness > F[cl]:
                 centroids[cl] = new_solution
-                F[cl] = new_solution_cost
+                F[cl] = new_fitness
+                costs[cl] = new_solution_cost
                 C[cl] = 0
             else: 
                 # Increment the counter for discarted new solutions
@@ -198,7 +200,6 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # (centroids[selected_key] - centroids[k]): numpy array
             # The operation will be element by element given that all the operands
             # are numpy arrays
-            # TODO: ceil and floor of the new solution
             new_solution = centroids[selected_key] + phi * (centroids[selected_key] - centroids[k])
 
             # Calculate the cost of the dataset with the new centroid
@@ -209,7 +210,8 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # Greedy selection: comparing the new solution to the old one
             if new_fitness > F[selected_key]:
                 centroids[selected_key] = new_solution
-                F[selected_key] = new_solution_cost
+                F[selected_key] = new_fitness
+                costs[selected_key] = new_solution_cost
                 C[selected_key] = 0
             else: 
                 # Increment the counter for discarted new solutions
@@ -283,8 +285,38 @@ for database in databases:
     d, c = readDatabase(database['filename'], database['has_id'], database['class_position'])
     trainning_set, test_set, trainning_set_classes, test_set_classes = getSets(d.copy(), c.copy())
 
+    print('\n\n## DATABASE: {filename}'.format(filename = database['filename']))
+
     stats, centroids = determineCentroids(trainning_set, trainning_set_classes)
 
+    clusters = len(centroids)
+
+    kmeans = KMeans(n_clusters=clusters, random_state=0).fit(trainning_set)
+
+    classes_labels = {}
+    pred_test = kmeans.predict(test_set)
+
+    for y_label in pred_test:
+        classes_labels[y_label] = {}
+
+    for pred_label, test_label in zip(pred_test, test_set_classes):
+        if classes_labels[pred_label].get(test_label) is None:
+            classes_labels[pred_label][test_label] = 1
+        else:
+            classes_labels[pred_label][test_label] += 1
+
+    print("CLASSES: ",classes_labels)
+
+    correct_count = 0
+    for key, val in classes_labels.items():
+        max_inst = 0
+        for k,v in classes_labels[key].items():
+            if max_inst < v:
+                max_inst = v
+        correct_count += max_inst
+    acc = correct_count / len(pred_test)
+
+    print("KMEANS ACC: ", acc)
 
     ######## OUTPUT ########
     limits = [1000, 500, 50]
