@@ -168,8 +168,9 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # Greedy selection: comparing the new solution to the old one
             if new_fitness > F[cl]:
                 centroids[cl] = new_solution
-                F[cl] = new_fitness
-                costs[cl] = new_solution_cost
+                F[cl] = new_solution_cost
+                # F[cl] = new_fitness
+                # costs[cl] = new_solution_cost
                 C[cl] = 0
             else: 
                 # Increment the counter for discarted new solutions
@@ -210,8 +211,9 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
             # Greedy selection: comparing the new solution to the old one
             if new_fitness > F[selected_key]:
                 centroids[selected_key] = new_solution
-                F[selected_key] = new_fitness
-                costs[selected_key] = new_solution_cost
+                F[selected_key] = new_solution_cost
+                # F[selected_key] = new_fitness
+                # costs[selected_key] = new_solution_cost
                 C[selected_key] = 0
             else: 
                 # Increment the counter for discarted new solutions
@@ -305,8 +307,6 @@ for database in databases:
         else:
             classes_labels[pred_label][test_label] += 1
 
-    print("CLASSES: ",classes_labels)
-
     correct_count = 0
     for key, val in classes_labels.items():
         max_inst = 0
@@ -316,33 +316,44 @@ for database in databases:
         correct_count += max_inst
     acc = correct_count / len(pred_test)
 
-    print("KMEANS ACC: ", acc)
+    print("KMEANS ACCURACY: ", acc)
+
+    max_acc = 0
+    best_limit = -1
 
     ######## OUTPUT ########
     limits = [1000, 500, 50]
     for limit in limits:
         best_soltions, new_centroids = ABC(trainning_set, trainning_set_classes, centroids.copy(), a_limit = limit, max_iter = 5000)
-        print('\n\n## DATABASE: {filename}, limit = {limit}'.format(filename = database['filename'], limit = limit))
+        # print('\n\n## DATABASE: {filename}, limit = {limit}'.format(filename = database['filename'], limit = limit))
 
         # Test with the centroids
         count = 0
-        print("# Test with the original centroids #")
+        # print("# Test with the original centroids #")
         for i, val in enumerate(test_set):
             cl = nearestCentroidClassifier(test_set[i], centroids)
-            if cl != str(test_set_classes[i]):
+            if cl == str(test_set_classes[i]):
                 #print("Miscl.: {data}; Correct: {correct}; Classif.: {classif}"
                 #    .format(data = test_set[i], correct = test_set_classes[i], classif = cl))
                 count += 1
-        print("# RESULT -> ACC: {cep}".format(cep = 1 - count/len(test_set)))
+        acc = count/len(test_set)
+        # print(f"# RESULT -> ACC: {acc}")
 
         # Test with the ABC result
         count = 0
-        print("\n\nTest with the ABC result centroids")
+        # print("\n\nTest with the ABC result centroids")
         for i, val in enumerate(test_set):
             cl = nearestCentroidClassifier(test_set[i], new_centroids)
-            if cl != str(test_set_classes[i]):
+            if cl == str(test_set_classes[i]):
                 #print("Miscl.: {data}; Correct: {correct}; Classif.: {classif}"
                 #    .format(data = test_set[i], correct = test_set_classes[i], classif = cl))
                 count += 1
-        print("# RESULT -> ACC: {cep}\n".format(cep = 1 - count/len(test_set)))
-        
+        abc_acc = count/len(test_set)
+        # print(f"# RESULT -> ACC: {abc_acc}\n")
+
+        if max_acc < abc_acc:
+            max_acc = abc_acc
+            best_limit = limit
+    
+    print("\n\nTest with the ABC result centroids")
+    print(f"# BEST ABC RESULT at limit {best_limit} -> ACCURACY: {max_acc}\n")
