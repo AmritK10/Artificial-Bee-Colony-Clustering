@@ -6,6 +6,7 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
 class Centroid():
+    
     def __init__(self, cl, acc):
         self.cl = cl
         self.acc = acc
@@ -22,7 +23,9 @@ class Centroid():
 
 # Reads and normalize the database, returns the data and classes apart
 def readDatabase(filename, has_id, class_position):
+    
     filepath = os.path.join("databases",filename)
+    
     with open(filepath) as f:
         # Getting only the lines without missing attribute
         lines = (line for line in f if '?' not in line)
@@ -57,6 +60,7 @@ def readDatabase(filename, has_id, class_position):
 # Determine the classes centroids as the mean values of the data
 # in each class
 def determineCentroids(dataset, classes):
+    
     rows, cols = np.shape(dataset)
 
     stats = {}
@@ -76,6 +80,7 @@ def determineCentroids(dataset, classes):
 
 # Simple Euclidian distance between two arrays
 def euclidianDistance(a, b):    
+    
     diff_sqrt = [(x - y)**2 for x, y in zip(a, b)]
 
     return np.sqrt(np.sum(diff_sqrt))
@@ -83,6 +88,7 @@ def euclidianDistance(a, b):
 # The sum of the distances between a data point and its class centroid
 # in the trainning set
 def costFunction(dataset, classes, cl, centroid):
+    
     # 'cl' will be the string representation of the class already
     distances_sum = 0
     count = 0
@@ -94,6 +100,7 @@ def costFunction(dataset, classes, cl, centroid):
     return distances_sum / count
 
 def fitnessFunction(costs):
+    
     fitness = costs.copy()
     for key in fitness:
         fitness[key] = 1/(1 + costs[key])
@@ -118,6 +125,7 @@ def rouletteWheelFunction(P):
 
 # Artificial Bee Colony algorithm implementation
 def ABC(dataset, classes, centroids, a_limit, max_iter):
+    
     n_data, n_attr = np.shape(dataset) # Number of cases and number of attributes in each case
     n_bees = len(centroids) # Number of bees in the problem
     var_min = 0 # Minimum possible for each variable
@@ -221,6 +229,7 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
 
         max_fails = a_limit
         c_cl = None
+
         # Scout bees phase
         for cl_s in centroids:
             if C[cl_s] > a_limit:
@@ -247,11 +256,10 @@ def ABC(dataset, classes, centroids, a_limit, max_iter):
 
         best_solutions[it] = best_solution
 
-        #print('Iteration: {it}; Best cost: {best_solution}'.format(it = "%03d" % it, best_solution = best_solution))
-
     return best_solutions, centroids
 
 def nearestCentroidClassifier(data, centroids):
+    
     distances = centroids.copy()
     for key in centroids:
         distances[key] = euclidianDistance(data, centroids[key])
@@ -262,6 +270,7 @@ def nearestCentroidClassifier(data, centroids):
     return nearest_class
 
 def getSets(dataset, classes):
+    
     size = len(dataset)
 
     trainning_set = dataset[:round(size * 0.75), :]
@@ -284,6 +293,7 @@ databases = [
             ]
 
 for database in databases:
+    
     d, c = readDatabase(database['filename'], database['has_id'], database['class_position'])
     trainning_set, test_set, trainning_set_classes, test_set_classes = getSets(d.copy(), c.copy())
 
@@ -293,6 +303,7 @@ for database in databases:
 
     clusters = len(centroids)
 
+    # KMeans CLustering
     kmeans = KMeans(n_clusters=clusters, random_state=0).fit(trainning_set)
 
     classes_labels = {}
@@ -321,35 +332,20 @@ for database in databases:
     max_acc = 0
     best_limit = -1
 
-    ######## OUTPUT ########
+    ######## ABC OUTPUT ########
     limits = [1000, 500, 50]
     for limit in limits:
         best_soltions, new_centroids = ABC(trainning_set, trainning_set_classes, centroids.copy(), a_limit = limit, max_iter = 5000)
-        # print('\n\n## DATABASE: {filename}, limit = {limit}'.format(filename = database['filename'], limit = limit))
 
-        # Test with the centroids
+        # Calculate Test Accuracy with the ABC result
         count = 0
-        # print("# Test with the original centroids #")
-        for i, val in enumerate(test_set):
-            cl = nearestCentroidClassifier(test_set[i], centroids)
-            if cl == str(test_set_classes[i]):
-                #print("Miscl.: {data}; Correct: {correct}; Classif.: {classif}"
-                #    .format(data = test_set[i], correct = test_set_classes[i], classif = cl))
-                count += 1
-        acc = count/len(test_set)
-        # print(f"# RESULT -> ACC: {acc}")
 
-        # Test with the ABC result
-        count = 0
-        # print("\n\nTest with the ABC result centroids")
         for i, val in enumerate(test_set):
             cl = nearestCentroidClassifier(test_set[i], new_centroids)
             if cl == str(test_set_classes[i]):
-                #print("Miscl.: {data}; Correct: {correct}; Classif.: {classif}"
-                #    .format(data = test_set[i], correct = test_set_classes[i], classif = cl))
                 count += 1
+        
         abc_acc = count/len(test_set)
-        # print(f"# RESULT -> ACC: {abc_acc}\n")
 
         if max_acc < abc_acc:
             max_acc = abc_acc
