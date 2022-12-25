@@ -9,4 +9,5 @@ A python implementation of Artificial Bee Colony algorithm based clustering tech
 </ul>
 
 ## Research Paper 
-The following <b>research paper</b> outlines the Artificial Bee Colony algorithm based clustering technique: http://www.sciencedirect.com/science/article/pii/S1568494609002798 
+The following <b>research paper</b> outlines the Artificial Bee Colony algorithm based clustering technique: <br/>
+Karaboga, D., & Ozturk, C. (2011). A novel clustering approach: Artificial Bee Colony (ABC) algorithm. Applied soft computing, 11(1), 652-657. https://doi.org/10.1016/j.asoc.2009.12.025
